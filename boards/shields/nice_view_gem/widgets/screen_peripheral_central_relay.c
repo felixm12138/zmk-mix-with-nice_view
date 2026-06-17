@@ -28,6 +28,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/split/central-states/cache.h>
 #include <zmk/split/central-states/event.h>
 
+#include "animation.h"
 #include "battery.h"
 #include "layer.h"
 #include "output.h"
@@ -183,29 +184,6 @@ static void draw_profiles_no_active(lv_obj_t *canvas) {
 
 /*
  * ============================================================
- * Middle layer label
- * ============================================================
- */
-
-static void draw_central_relay_layer_status(lv_obj_t *canvas,
-                                            const struct status_state *state) {
-    lv_draw_label_dsc_t label_dsc;
-    init_label_dsc(&label_dsc, LVGL_FOREGROUND, &pixel_operator_mono, LV_TEXT_ALIGN_CENTER);
-
-    char text[10] = {};
-    if (state->layer_label == NULL) {
-        sprintf(text, "Layer %i", state->layer_index);
-    } else {
-        strncpy(text, state->layer_label, sizeof(text) - 1);
-        text[sizeof(text) - 1] = '\0';
-        to_uppercase(text);
-    }
-
-    lv_canvas_draw_text(canvas, 0, 84 + BUFFER_OFFSET_MIDDLE, 68, &label_dsc, text);
-}
-
-/*
- * ============================================================
  * Draw buffers
  * ============================================================
  */
@@ -225,17 +203,6 @@ static void draw_top(lv_obj_t *widget, lv_color_t cbuf[], const struct status_st
     rotate_canvas(canvas, cbuf);
 }
 
-static void draw_middle(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
-    lv_obj_t *canvas = lv_obj_get_child(widget, 1);
-    fill_background(canvas);
-
-    if (state->connected && state->central_relay_received) {
-        draw_central_relay_layer_status(canvas, state);
-    }
-
-    rotate_canvas(canvas, cbuf);
-}
-
 static void draw_bottom(lv_obj_t *widget, lv_color_t cbuf[], const struct status_state *state) {
     lv_obj_t *canvas = lv_obj_get_child(widget, 2);
     fill_background(canvas);
@@ -243,6 +210,7 @@ static void draw_bottom(lv_obj_t *widget, lv_color_t cbuf[], const struct status
     if (state->connected && state->central_relay_received) {
         /* Full data available — reuse existing draw functions */
         draw_profile_status(canvas, state);
+        draw_layer_status(canvas, state);
     } else {
         /* No relay data — show placeholder */
         draw_profiles_no_active(canvas);
@@ -313,7 +281,6 @@ static void set_connection_status(struct zmk_widget_screen *widget,
     }
 
     draw_top(widget->obj, widget->cbuf, &widget->state);
-    draw_middle(widget->obj, widget->cbuf2, &widget->state);
     draw_bottom(widget->obj, widget->cbuf3, &widget->state);
 }
 
@@ -352,13 +319,12 @@ static void set_central_relay_status(struct zmk_widget_screen *widget,
     widget->state.central_relay_bonded = state.bonded;
     widget->state.central_relay_usb = state.usb;
 
-    /* Standard names for draw_profile_status and the middle layer label. */
+    /* Standard names for draw_profile_status/draw_layer_status reuse */
     widget->state.active_profile_index = state.profile_index;
     widget->state.layer_index = state.layer_index;
     widget->state.layer_label = state.layer_label;
 
     draw_top(widget->obj, widget->cbuf, &widget->state);
-    draw_middle(widget->obj, widget->cbuf2, &widget->state);
     draw_bottom(widget->obj, widget->cbuf3, &widget->state);
 }
 
@@ -407,6 +373,8 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     /* Fill middle canvas once — reserved for future use, no redraw needed */
     fill_background(middle);
     rotate_canvas(middle, widget->cbuf2);
+
+    draw_animation(widget->obj);
 
     lv_obj_t *bottom = lv_canvas_create(widget->obj);
     lv_obj_align(bottom, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_BOTTOM, 0);
