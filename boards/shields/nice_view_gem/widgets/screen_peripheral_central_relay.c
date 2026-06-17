@@ -42,8 +42,7 @@ LV_IMG_DECLARE(bt);
 LV_IMG_DECLARE(usb);
 LV_IMG_DECLARE(bolt);
 LV_IMG_DECLARE(profiles);
-
-void draw_animation(lv_obj_t *canvas);
+LV_IMG_DECLARE(middle_art);
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -375,7 +374,9 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     fill_background(middle);
     rotate_canvas(middle, widget->cbuf2);
 
-    draw_animation(widget->obj);
+    lv_obj_t *middle_art_obj = lv_img_create(widget->obj);
+    lv_img_set_src(middle_art_obj, &middle_art);
+    lv_obj_align(middle_art_obj, LV_ALIGN_TOP_LEFT, 46, 21);
 
     lv_obj_t *bottom = lv_canvas_create(widget->obj);
     lv_obj_align(bottom, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_BOTTOM, 0);
