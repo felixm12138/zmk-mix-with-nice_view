@@ -28,7 +28,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/split/central-states/cache.h>
 #include <zmk/split/central-states/event.h>
 
-#include "animation.h"
 #include "battery.h"
 #include "layer.h"
 #include "output.h"
@@ -43,6 +42,8 @@ LV_IMG_DECLARE(bt);
 LV_IMG_DECLARE(usb);
 LV_IMG_DECLARE(bolt);
 LV_IMG_DECLARE(profiles);
+
+void draw_animation(lv_obj_t *canvas);
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
