@@ -15,8 +15,5 @@ manifest:
   - name: zmk-central-states-relay
     url: https://github.com/ArtemYurov/zmk-central-states-relay
     revision: main
-  - name: nice-view-central-relay
-    url: https://github.com/ArtemYurov/nice-view-central-relay
-    revision: zmk-v0.3
   self:
     path: config
