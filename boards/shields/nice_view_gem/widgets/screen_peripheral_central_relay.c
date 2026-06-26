@@ -42,7 +42,7 @@ LV_IMG_DECLARE(bt);
 LV_IMG_DECLARE(usb);
 LV_IMG_DECLARE(bolt);
 LV_IMG_DECLARE(profiles);
-LV_IMG_DECLARE(middle_art);
+LV_IMG_DECLARE(middle_art_rotated);
 
 static sys_slist_t widgets = SYS_SLIST_STATIC_INIT(&widgets);
 
@@ -372,15 +372,14 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     lv_canvas_set_buffer(middle, widget->cbuf2, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
     /* Fill middle canvas once — reserved for future use, no redraw needed */
     fill_background(middle);
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+    lv_canvas_draw_img(middle, (BUFFER_SIZE - 25) / 2, 0, &middle_art_rotated, &img_dsc);
     rotate_canvas(middle, widget->cbuf2);
 
     lv_obj_t *bottom = lv_canvas_create(widget->obj);
     lv_obj_align(bottom, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_BOTTOM, 0);
     lv_canvas_set_buffer(bottom, widget->cbuf3, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
-
-    lv_obj_t *middle_art_obj = lv_img_create(widget->obj);
-    lv_img_set_src(middle_art_obj, &middle_art);
-    lv_obj_align(middle_art_obj, LV_ALIGN_CENTER, 0, 0);
 
     sys_slist_append(&widgets, &widget->node);
     widget_battery_status_init();
