@@ -372,11 +372,10 @@ int zmk_widget_screen_init(struct zmk_widget_screen *widget, lv_obj_t *parent) {
     lv_canvas_set_buffer(middle, widget->cbuf2, BUFFER_SIZE, BUFFER_SIZE, LV_IMG_CF_TRUE_COLOR);
     /* Fill middle canvas once — reserved for future use, no redraw needed */
     fill_background(middle);
+    lv_draw_img_dsc_t img_dsc;
+    lv_draw_img_dsc_init(&img_dsc);
+    lv_canvas_draw_img(middle, 0, 21, &middle_art, &img_dsc);
     rotate_canvas(middle, widget->cbuf2);
-
-    lv_obj_t *middle_art_obj = lv_img_create(widget->obj);
-    lv_img_set_src(middle_art_obj, &middle_art);
-    lv_obj_align(middle_art_obj, LV_ALIGN_TOP_LEFT, 46, 21);
 
     lv_obj_t *bottom = lv_canvas_create(widget->obj);
     lv_obj_align(bottom, LV_ALIGN_TOP_RIGHT, BUFFER_OFFSET_BOTTOM, 0);
